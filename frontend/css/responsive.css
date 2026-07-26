@@ -1,0 +1,137 @@
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE LAYOUT — MEDIA QUERIES
+═══════════════════════════════════════════════════════════ */
+
+/* ── Tablet (≤ 1024px) ────────────────────────────────────── */
+@media (max-width: 1024px) {
+  :root { --sidebar-w: 200px; }
+
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .quickstart-grid { grid-template-columns: repeat(3, 1fr); }
+  .formula-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+
+  .section { padding: 24px 24px 48px; }
+
+  .poly-inputs { grid-template-columns: 1fr; }
+  .op-symbol { width: 40px; height: 40px; font-size: 20px; }
+
+  .hero-title { font-size: 28px; }
+  .hero-badge { font-size: 48px; }
+}
+
+/* ── Mobile Sidebar Collapse (≤ 768px) ────────────────────── */
+@media (max-width: 768px) {
+  :root { --sidebar-w: 240px; }
+
+  .sidebar {
+    transform: translateX(-100%);
+    z-index: 200;
+    box-shadow: var(--shadow-lg);
+  }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay { display: block; }
+
+  .main-content { margin-left: 0; }
+
+  .hamburger { display: flex; }
+
+  .section { padding: 20px 16px 48px; gap: 16px; }
+
+  /* Hero */
+  .section-hero {
+    flex-direction: column; gap: 20px;
+    padding: 28px 24px; text-align: center;
+  }
+  .hero-title { font-size: 24px; }
+  .hero-sub { font-size: 13px; }
+  .hero-badge { font-size: 40px; }
+
+  /* Grids */
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .quickstart-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .formula-grid { grid-template-columns: 1fr; }
+
+  /* Calc panel */
+  .calc-panel { padding: 20px 16px; gap: 16px; }
+  .poly-inputs { grid-template-columns: 1fr; }
+  .op-symbol { width: 36px; height: 36px; font-size: 18px; align-self: center; }
+
+  /* Buttons */
+  .calc-actions { flex-direction: column; align-items: stretch; }
+  .btn-lg { width: 100%; justify-content: center; }
+  .btn-ghost { justify-content: center; }
+
+  /* Op Tabs */
+  .op-tabs { flex-wrap: nowrap; overflow-x: auto; min-width: unset; width: auto; }
+  .op-tab { padding: 8px 14px; font-size: 12px; }
+
+  /* Search */
+  .search-wrap { min-width: unset; flex: 1; }
+
+  /* Topbar */
+  .topbar { padding: 0 16px; gap: 10px; }
+  .topbar-title { font-size: 14px; }
+
+  /* Graph controls */
+  .graph-inputs-row { flex-direction: column; gap: 12px; }
+  .range-group { width: 100%; }
+
+  /* Matrix */
+  .matrix-size-row { gap: 8px; }
+
+  /* History toolbar */
+  .history-toolbar { flex-direction: column; align-items: stretch; }
+  .history-actions { justify-content: flex-end; }
+
+  /* Result summary */
+  .result-summary { flex-direction: column; text-align: center; }
+  .result-extra { flex-direction: column; }
+
+  /* Bounds */
+  .bounds-row { flex-direction: column; }
+
+  /* Toast */
+  .toast-container { bottom: 16px; right: 16px; left: 16px; }
+  .toast { max-width: 100%; }
+
+  /* Chart */
+  .chart-container { min-height: 280px; padding: 16px; }
+}
+
+/* ── Small Mobile (≤ 480px) ───────────────────────────────── */
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .quickstart-grid { grid-template-columns: repeat(3, 1fr); }
+  .qs-card { padding: 14px 8px; }
+  .qs-icon { width: 36px; height: 36px; }
+  .qs-label { font-size: 10px; }
+
+  .section-header h1 { font-size: 20px; }
+  .stat-card { padding: 14px 16px; }
+  .stat-value { font-size: 20px; }
+
+  .math-input { font-size: 14px; padding: 10px 14px; }
+  .matrix-cell { width: 52px; height: 40px; font-size: 13px; }
+
+  .result-value { font-size: 18px; }
+  .step-expr { font-size: 12px; }
+
+  .formula-expr { font-size: 14px; }
+
+  .modal-glass { padding: 28px 20px; margin: 16px; }
+}
+
+/* ── Large Screen ─────────────────────────────────────────── */
+@media (min-width: 1400px) {
+  .stats-grid { grid-template-columns: repeat(4, 1fr); }
+  .quickstart-grid { grid-template-columns: repeat(6, 1fr); }
+  .section { padding: 40px 48px 80px; }
+}
+
+/* ── Print ────────────────────────────────────────────────── */
+@media print {
+  .sidebar, .topbar, .toast-container, #particle-canvas, .gradient-orbs { display: none !important; }
+  .main-content { margin-left: 0; }
+  .section { padding: 0; }
+  .glass { background: white; border: 1px solid #ddd; }
+}

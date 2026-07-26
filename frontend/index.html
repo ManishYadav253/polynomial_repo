@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PolyCalc — Polynomial Calculator & Calculus Toolkit</title>
+  <meta name="description" content="A modern mathematical computing platform for polynomial operations, calculus, root finding, matrix algebra, and graph visualization." />
+  <meta name="keywords" content="polynomial calculator, calculus, derivative, integral, matrix, graph plotter, math" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <!-- Chart.js (Hammer.js must load before zoom plugin) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/glassmorphism.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     PARTICLE CANVAS BACKGROUND
+════════════════════════════════════════════════════════════════════════════ -->
+<canvas id="particle-canvas"></canvas>
+<div class="gradient-orbs">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     AUTH MODAL
+════════════════════════════════════════════════════════════════════════════ -->
+<div id="auth-modal" class="modal-overlay hidden">
+  <div class="modal-glass">
+    <button class="modal-close" id="auth-modal-close"><i data-lucide="x"></i></button>
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-tab="login">Login</button>
+      <button class="auth-tab" data-tab="register">Register</button>
+    </div>
+
+    <!-- Login Form -->
+    <form id="login-form" class="auth-form">
+      <div class="auth-header">
+        <div class="auth-icon"><i data-lucide="lock-keyhole"></i></div>
+        <h2>Welcome back</h2>
+        <p>Sign in to save your calculations</p>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <div class="input-icon-wrap"><i data-lucide="mail"></i><input type="email" id="login-email" placeholder="you@example.com" /></div>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <div class="input-icon-wrap"><i data-lucide="key"></i><input type="password" id="login-password" placeholder="••••••••" /></div>
+      </div>
+      <div id="login-error" class="form-error hidden"></div>
+      <button type="submit" class="btn btn-primary btn-full">Sign In</button>
+    </form>
+
+    <!-- Register Form -->
+    <form id="register-form" class="auth-form hidden">
+      <div class="auth-header">
+        <div class="auth-icon"><i data-lucide="user-plus"></i></div>
+        <h2>Create account</h2>
+        <p>Start saving your calculations</p>
+      </div>
+      <div class="form-group">
+        <label>Username</label>
+        <div class="input-icon-wrap"><i data-lucide="user"></i><input type="text" id="reg-username" placeholder="mathgenius" /></div>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <div class="input-icon-wrap"><i data-lucide="mail"></i><input type="email" id="reg-email" placeholder="you@example.com" /></div>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <div class="input-icon-wrap"><i data-lucide="key"></i><input type="password" id="reg-password" placeholder="Min 6 characters" /></div>
+      </div>
+      <div id="reg-error" class="form-error hidden"></div>
+      <button type="submit" class="btn btn-primary btn-full">Create Account</button>
+    </form>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     SIDEBAR
+════════════════════════════════════════════════════════════════════════════ -->
+<aside id="sidebar" class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">∑</div>
+    <span class="logo-text">PolyCalc</span>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a href="#dashboard" class="nav-item active" data-section="dashboard">
+      <i data-lucide="layout-dashboard"></i><span>Dashboard</span>
+    </a>
+    <div class="nav-section-label">Operations</div>
+    <a href="#polynomial" class="nav-item" data-section="polynomial">
+      <i data-lucide="sigma"></i><span>Polynomial Ops</span>
+    </a>
+    <a href="#calculus" class="nav-item" data-section="calculus">
+      <i data-lucide="trending-up"></i><span>Calculus</span>
+    </a>
+    <a href="#roots" class="nav-item" data-section="roots">
+      <i data-lucide="crosshair"></i><span>Root Finder</span>
+    </a>
+    <a href="#graph" class="nav-item" data-section="graph">
+      <i data-lucide="line-chart"></i><span>Graph Plotter</span>
+    </a>
+    <div class="nav-section-label">Algebra</div>
+    <a href="#matrix" class="nav-item" data-section="matrix">
+      <i data-lucide="grid-3x3"></i><span>Matrix Ops</span>
+    </a>
+    <a href="#equations" class="nav-item" data-section="equations">
+      <i data-lucide="equal"></i><span>Equation Solver</span>
+    </a>
+    <div class="nav-section-label">Reference</div>
+    <a href="#formulas" class="nav-item" data-section="formulas">
+      <i data-lucide="book-open"></i><span>Formula Library</span>
+    </a>
+    <a href="#history" class="nav-item" data-section="history">
+      <i data-lucide="history"></i><span>History</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <button class="theme-toggle" id="theme-toggle" title="Toggle theme">
+      <i data-lucide="sun" id="theme-icon"></i>
+    </button>
+    <div class="sidebar-user" id="sidebar-user">
+      <button class="btn-ghost" id="auth-btn">
+        <i data-lucide="log-in"></i><span>Sign In</span>
+      </button>
+    </div>
+  </div>
+</aside>
+
+<!-- Sidebar overlay (mobile) -->
+<div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     MAIN CONTENT
+════════════════════════════════════════════════════════════════════════════ -->
+<main id="main" class="main-content">
+
+  <!-- Top Bar -->
+  <header class="topbar">
+    <button class="hamburger" id="hamburger"><i data-lucide="menu"></i></button>
+    <div class="topbar-title" id="topbar-title">Dashboard</div>
+    <div class="topbar-actions">
+      <div class="search-wrap">
+        <i data-lucide="search"></i>
+        <input type="text" id="global-search" placeholder="Search calculations…" />
+      </div>
+    </div>
+  </header>
+
+  <!-- ────────────────────────────────────────────────────────
+       SECTION: DASHBOARD
+  ─────────────────────────────────────────────────────────── -->
+  <section id="section-dashboard" class="section active" data-title="Dashboard">
+    <div class="section-hero">
+      <div class="hero-text">
+        <h1 class="hero-title"><span class="gradient-text">Polynomial Calculator</span><br/>&amp; Calculus Toolkit</h1>
+        <p class="hero-sub">A professional mathematical computing platform. Perform operations, visualize curves, and learn step-by-step.</p>
+      </div>
+      <div class="hero-badge">∫∂Σ</div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card glass" id="stat-total"><div class="stat-icon"><i data-lucide="calculator"></i></div><div class="stat-info"><span class="stat-value" id="stat-val-total">0</span><span class="stat-label">Calculations</span></div></div>
+      <div class="stat-card glass" id="stat-ops"><div class="stat-icon"><i data-lucide="zap"></i></div><div class="stat-info"><span class="stat-value" id="stat-val-ops">11</span><span class="stat-label">Operations</span></div></div>
+      <div class="stat-card glass"><div class="stat-icon"><i data-lucide="cpu"></i></div><div class="stat-info"><span class="stat-value">C++</span><span class="stat-label">Math Engine</span></div></div>
+      <div class="stat-card glass"><div class="stat-icon"><i data-lucide="infinity"></i></div><div class="stat-info"><span class="stat-value">∞</span><span class="stat-label">Precision</span></div></div>
+    </div>
+
+    <h2 class="section-subtitle">Quick Start</h2>
+    <div class="quickstart-grid">
+      <button class="qs-card glass" data-goto="polynomial"><span class="qs-icon"><i data-lucide="sigma"></i></span><span class="qs-label">Polynomial<br/>Operations</span></button>
+      <button class="qs-card glass" data-goto="calculus"><span class="qs-icon"><i data-lucide="trending-up"></i></span><span class="qs-label">Differentiate &amp;<br/>Integrate</span></button>
+      <button class="qs-card glass" data-goto="roots"><span class="qs-icon"><i data-lucide="crosshair"></i></span><span class="qs-label">Find<br/>Roots</span></button>
+      <button class="qs-card glass" data-goto="graph"><span class="qs-icon"><i data-lucide="line-chart"></i></span><span class="qs-label">Graph<br/>Plotter</span></button>
+      <button class="qs-card glass" data-goto="matrix"><span class="qs-icon"><i data-lucide="grid-3x3"></i></span><span class="qs-label">Matrix<br/>Operations</span></button>
+      <button class="qs-card glass" data-goto="formulas"><span class="qs-icon"><i data-lucide="book-open"></i></span><span class="qs-label">Formula<br/>Library</span></button>
+    </div>
+
+    <h2 class="section-subtitle">Recent Calculations</h2>
+    <div id="dashboard-recent" class="recent-list">
+      <div class="empty-state"><i data-lucide="sparkles"></i><p>Your recent calculations will appear here</p></div>
+    </div>
+  </section>
+
+  <!-- ────────────────────────────────────────────────────────
+       SECTION: POLYNOMIAL OPERATIONS
+  ─────────────────────────────────────────────────────────── -->
+  <section id="section-polynomial" class="section" data-title="Polynomial Operations">
+    <div class="section-header">
+      <h1>Polynomial Operations</h1>
+      <p>Perform arithmetic and algebraic operations on polynomials with full step-by-step solutions.</p>
+    </div>
+
+    <div class="op-tabs-wrap">
+      <div class="op-tabs" id="poly-tabs">
+        <button class="op-tab active" data-op="add">Add</button>
+        <button class="op-tab" data-op="subtract">Subtract</button>
+        <button class="op-tab" data-op="multiply">Multiply</button>
+        <button class="op-tab" data-op="divide">Divide</button>
+        <button class="op-tab" data-op="evaluate">Evaluate</button>
+        <button class="op-tab" data-op="compose">Compose</button>
+        <button class="op-tab" data-op="compare">Compare</button>
+        <button class="op-tab" data-op="simplify">Simplify</button>
+      </div>
+    </div>
+
+    <div class="calc-panel glass">
+      <!-- Two-poly ops: add/subtract/multiply/divide/compose/compare -->
+      <div class="poly-inputs" id="poly-two-input">
+        <div class="form-group">
+          <label>First Polynomial <span class="hint">e.g. 3x^2 + 2x - 1</span></label>
+          <input type="text" id="poly-p1" class="math-input" placeholder="3x^2 + 2x - 1" autocomplete="off" />
+        </div>
+        <div class="op-symbol" id="poly-op-symbol">+</div>
+        <div class="form-group">
+          <label>Second Polynomial <span class="hint">e.g. x^2 - 4</span></label>
+          <input type="text" id="poly-p2" class="math-input" placeholder="x^2 - 4" autocomplete="off" />
+        </div>
+      </div>
+
+      <!-- Single-poly ops: evaluate/simplify -->
+      <div class="poly-inputs hidden" id="poly-one-input">
+        <div class="form-group">
+          <label>Polynomial <span class="hint">e.g. 2x^3 - x + 5</span></label>
+          <input type="text" id="poly-single" class="math-input" placeholder="2x^3 - x + 5" autocomplete="off" />
+        </div>
+        <div class="form-group" id="poly-x-group">
+          <label>Value of x</label>
+          <input type="number" id="poly-x-val" class="math-input" placeholder="2" value="2" />
+        </div>
+      </div>
+
+      <div class="calc-actions">
+        <button class="btn btn-primary btn-lg" id="poly-calculate"><i data-lucide="play"></i> Calculate</button>
+        <button class="btn btn-ghost" id="poly-clear"><i data-lucide="trash-2"></i> Clear</button>
+        <button class="btn btn-ghost" id="poly-graph-it"><i data-lucide="line-chart"></i> Graph It</button>
+      </div>
+    </div>
+
+    <div id="poly-result" class="result-panel hidden"></div>
+  </section>
+
+  <!-- ────────────────────────────────────────────────────────
+       SECTION: CALCULUS
+  ─────────────────────────────────────────────────────────── -->
+  <section id="section-calculus" class="section" data-title="Calculus Toolkit">
+    <div class="section-header">
+      <h1>Calculus Toolkit</h1>
+      <p>Compute derivatives and integrals with complete step-by-step derivation.</p>
+    </div>
+
+    <div class="op-tabs-wrap">
+      <div class="op-tabs" id="calc-tabs">
+        <button class="op-tab active" data-op="differentiate">Differentiate</button>
+        <button class="op-tab" data-op="integrate">Indefinite Integral</button>
+        <button class="op-tab" data-op="definite">Definite Integral</button>
+      </div>
+    </div>
+
+    <div class="calc-panel glass">
+      <div class="form-group">
+        <label>Polynomial <span class="hint">e.g. 4x^3 - 3x^2 + 2x - 7</span></label>
+        <input type="text" id="calc-poly" class="math-input" placeholder="4x^3 - 3x^2 + 2x - 7" autocomplete="off" />
+      </div>
+      <div class="definite-bounds hidden" id="definite-bounds">
+        <div class="bounds-row">
+          <div class="form-group"><label>Lower Bound (a)</label><input type="number" id="calc-a" class="math-input" value="0" /></div>
+          <div class="form-group"><label>Upper Bound (b)</label><input type="number" id="calc-b" class="math-input" value="1" /></div>
+        </div>
+      </div>
+      <div class="calc-actions">
+        <button class="btn btn-primary btn-lg" id="calc-calculate"><i data-lucide="play"></i> Calculate</button>
+        <button class="btn btn-ghost" id="calc-clear"><i data-lucide="trash-2"></i> Clear</button>
+        <button class="btn btn-ghost" id="calc-graph-it"><i data-lucide="line-chart"></i> Graph It</button>
+      </div>
+    </div>
+
+    <div id="calc-result" class="result-panel hidden"></div>
+  </section>
+
+  <!-- ────────────────────────────────────────────────────────
+       SECTION: ROOT FINDER
+  ─────────────────────────────────────────────────────────── -->
+  <section id="section-roots" class="section" data-title="Root Finder">
+    <div class="section-header">
+      <h1>Root Finder</h1>
+      <p>Find roots using the Quadratic Formula and Newton-Raphson iteration with convergence analysis.</p>
+    </div>
+
+    <div class="op-tabs-wrap">
+      <div class="op-tabs" id="roots-tabs">
+        <button class="op-tab active" data-op="solve">Auto Solve</button>
+        <button class="op-tab" data-op="newton">Newton-Raphson</button>
+      </div>
+    </div>
+
+    <div class="calc-panel glass">
+      <div class="form-group">
+        <label>Polynomial <span class="hint">e.g. x^2 - 5x + 6</span></label>
+        <input type="text" id="roots-poly" class="math-input" placeholder="x^2 - 5x + 6" autocomplete="off" />
+      </div>
+      <div class="newton-opts hidden" id="newton-opts">
+        <div class="form-group">
+          <label>Initial Guess (x₀)</label>
+          <input type="number" id="roots-x0" class="math-input" value="1" step="0.1" />
+        </div>
+      </div>
+      <div class="calc-actions">
+        <button class="btn btn-primary btn-lg" id="roots-calculate"><i data-lucide="play"></i> Find Roots</button>
+        <button class="btn btn-ghost" id="roots-clear"><i data-lucide="trash-2"></i> Clear</button>
+      </div>
+    </div>
+
+    <div id="roots-result" class="result-panel hidden"></div>
+
+    <!-- Newton Convergence Chart -->
+    <div id="newton-chart-wrap" class="glass chart-container hidden">
+      <h3 class="chart-title">Newton-Raphson Convergence</h3>
+      <canvas id="newton-chart"></canvas>
+    </div>
+  </section>
+
+  <!-- ────────────────────────────────────────────────────────
+       SECTION: GRAPH PLOTTER
+  ─────────────────────────────────────────────────────────── -->
+  <section id="section-graph" class="section" data-title="Graph Plotter">
+    <div class="section-header">
+      <h1>Graph Plotter</h1>
+      <p>Visualize polynomials and their calculus curves interactively with zoom and pan.</p>
+    </div>
+
+    <div class="graph-controls glass">
+      <div class="graph-inputs-row">
+        <div class="form-group flex-1">
+          <label>Polynomial <span class="hint">e.g. x^3 - 3x + 2</span></label>
+          <input type="text" id="graph-poly" class="math-input" placeholder="x^3 - 3x + 2" autocomplete="off" />
+        </div>
+        <div class="form-group range-group">
+          <label>x from</label>
+          <input type="number" id="graph-xmin" class="math-input small" value="-10" />
+        </div>
+        <div class="form-group range-group">
+          <label>to</label>
+          <input type="number" id="graph-xmax" class="math-input small" value="10" />
+        </div>
+      </div>
+      <div class="graph-toggles">
+        <label class="toggle-label"><input type="checkbox" id="graph-show-f" checked /> <span class="toggle-pill"></span> f(x)</label>
+        <label class="toggle-label"><input type="checkbox" id="graph-show-df" checked /> <span class="toggle-pill"></span> f'(x)</label>
+        <label class="toggle-label"><input type="checkbox" id="graph-show-if" checked /> <span class="toggle-pill"></span> ∫f(x)dx</label>
+      </div>
+      <div class="calc-actions">
+        <button class="btn btn-primary" id="graph-plot"><i data-lucide="line-chart"></i> Plot Graph</button>
+        <button class="btn btn-ghost" id="graph-reset-zoom">Reset Zoom</button>
+        <button class="btn btn-ghost" id="graph-clear">Clear</button>
+      </div>
+    </div>
+
+    <div class="glass chart-container" id="graph-chart-wrap">
+      <div class="chart-placeholder" id="graph-placeholder">
+        <i data-lucide="line-chart"></i>
+        <p>Enter a polynomial above and click Plot Graph</p>
+      </div>
+      <canvas id="main-graph" style="display:none"></canvas>
+    </div>
+
+    <div id="graph-info" class="glass graph-info hidden">
+      <div id="graph-info-content"></div>
+    </div>
+  </section>
+
+  <!-- ────────────────────────────────────────────────────────
+       SECTION: MATRIX OPERATIONS
+  ─────────────────────────────────────────────────────────── -->
+  <section id="section-matrix" class="section" data-title="Matrix Operations">
+    <div class="section-header">
+      <h1>Matrix Operations</h1>
+      <p>Perform linear algebra with step-by-step Gaussian elimination, inverse, and determinant computation.</p>
+    </div>
+
+    <div class="op-tabs-wrap">
+      <div class="op-tabs" id="matrix-tabs">
+        <button class="op-tab active" data-op="add">Add</button>
+        <button class="op-tab" data-op="multiply">Multiply</button>
+        <button class="op-tab" data-op="determinant">Determinant</button>
+        <button class="op-tab" data-op="inverse">Inverse</button>
+        <button class="op-tab" data-op="gaussian">Gaussian Elim.</button>
+      </div>
+    </div>
+
+    <div class="matrix-layout">
+      <div class="matrix-panel glass">
+        <div class="matrix-size-row">
+          <label>Rows</label>
+          <input type="number" id="mat-rows" class="math-input tiny" value="2" min="1" max="6" />
+          <label>Cols</label>
+          <input type="number" id="mat-cols" class="math-input tiny" value="2" min="1" max="6" />
+          <button class="btn btn-ghost" id="mat-resize">Resize</button>
+        </div>
+
+        <h3 class="mat-label">Matrix A</h3>
+        <div id="matrix-a-grid" class="matrix-grid"></div>
+
+        <div id="matrix-b-section">
+          <h3 class="mat-label">Matrix B</h3>
+          <div id="matrix-b-grid" class="matrix-grid"></div>
+        </div>
+
+        <div class="calc-actions">
+          <button class="btn btn-primary btn-lg" id="mat-calculate"><i data-lucide="play"></i> Calculate</button>
+          <button class="btn btn-ghost" id="mat-clear"><i data-lucide="trash-2"></i> Clear</button>
+          <button class="btn btn-ghost" id="mat-random">Random</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="matrix-result" class="result-panel hidden"></div>
+  </section>
+
+  <!-- ────────────────────────────────────────────────────────
+       SECTION: EQUATION SOLVER
+  ─────────────────────────────────────────────────────────── -->
+  <section id="section-equations" class="section" data-title="Equation Solver">
+    <div class="section-header">
+      <h1>Equation Solver</h1>
+      <p>Solve linear, quadratic, and cubic equations with real and complex root display.</p>
+    </div>
+    <div class="calc-panel glass">
+      <div class="form-group">
+        <label>Equation <span class="hint">e.g. x^2 - 4x + 4 = 0 or just the left side</span></label>
+        <input type="text" id="eq-poly" class="math-input" placeholder="x^2 - 4x + 4" autocomplete="off" />
+      </div>
+      <div class="calc-actions">
+        <button class="btn btn-primary btn-lg" id="eq-solve"><i data-lucide="play"></i> Solve</button>
+        <button class="btn btn-ghost" id="eq-clear"><i data-lucide="trash-2"></i> Clear</button>
+      </div>
+    </div>
+    <div id="eq-result" class="result-panel hidden"></div>
+  </section>
+
+  <!-- ────────────────────────────────────────────────────────
+       SECTION: FORMULA LIBRARY
+  ─────────────────────────────────────────────────────────── -->
+  <section id="section-formulas" class="section" data-title="Formula Library">
+    <div class="section-header">
+      <h1>Formula Library</h1>
+      <p>Interactive mathematical reference for polynomial identities, derivative rules, and integration rules.</p>
+    </div>
+
+    <div class="formula-search-wrap glass">
+      <i data-lucide="search"></i>
+      <input type="text" id="formula-search" placeholder="Search formulas…" />
+    </div>
+
+    <div id="formula-grid" class="formula-grid"></div>
+  </section>
+
+  <!-- ────────────────────────────────────────────────────────
+       SECTION: HISTORY
+  ─────────────────────────────────────────────────────────── -->
+  <section id="section-history" class="section" data-title="History & Bookmarks">
+    <div class="section-header">
+      <h1>Calculation History</h1>
+      <p>Browse, bookmark, and export your recent calculations.</p>
+    </div>
+
+    <div class="history-toolbar glass">
+      <div class="history-tabs">
+        <button class="op-tab active" data-htab="recent">Recent</button>
+        <button class="op-tab" data-htab="bookmarks">Bookmarks</button>
+      </div>
+      <div class="history-actions">
+        <button class="btn btn-ghost" id="history-export-json"><i data-lucide="download"></i> Export JSON</button>
+        <button class="btn btn-ghost" id="history-export-csv"><i data-lucide="file-text"></i> Export CSV</button>
+        <button class="btn btn-danger" id="history-clear-all"><i data-lucide="trash-2"></i> Clear All</button>
+      </div>
+    </div>
+
+    <div id="history-list" class="history-list"></div>
+  </section>
+
+</main>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     TOAST NOTIFICATION
+════════════════════════════════════════════════════════════════════════════ -->
+<div id="toast-container" class="toast-container"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     SCRIPTS
+════════════════════════════════════════════════════════════════════════════ -->
+<script src="js/api.js"></script>
+<script src="js/result-renderer.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/particles.js"></script>
+<script src="js/formula-library.js"></script>
+<script src="js/graph.js"></script>
+<script src="js/calculator.js"></script>
+<script src="js/calculus.js"></script>
+<script src="js/roots.js"></script>
+<script src="js/matrix.js"></script>
+<script src="js/history.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
