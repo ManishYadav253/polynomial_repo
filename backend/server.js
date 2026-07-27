@@ -8,7 +8,7 @@ const bcrypt   = require('bcryptjs');
 const app       = express();
 const PORT      = process.env.PORT || 3001;
 const JWT_SECRET = process.env.JWT_SECRET || 'poly-calc-secret-2024';
-const DB_PATH   = path.join(__dirname, 'db.json');
+const DB_PATH   = process.env.VERCEL ? '/tmp/db.json' : path.join(__dirname, 'db.json');
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
@@ -337,8 +337,11 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
-app.listen(PORT, () => {
-  console.log(`\n🚀 Polynomial Calculator & Calculus Toolkit`);
-  console.log(`   ➜  http://localhost:${PORT}`);
-  console.log(`   API: http://localhost:${PORT}/api\n`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`\n🚀 Polynomial Calculator & Calculus Toolkit`);
+    console.log(`   ➜  http://localhost:${PORT}`);
+    console.log(`   API: http://localhost:${PORT}/api\n`);
+  });
+}
+module.exports = app;
