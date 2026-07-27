@@ -46,6 +46,11 @@ function authMiddleware(req, res, next) {
 }
 app.use(authMiddleware);
 
+// ─── Health Check ─────────────────────────────────────────────────────────────
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', uptime: process.uptime(), timestamp: new Date().toISOString() });
+});
+
 function saveCalc(userId, operation, input, result) {
   if (!userId) return null;
   const data = DB.load();

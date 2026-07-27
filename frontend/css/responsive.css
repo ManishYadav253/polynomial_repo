@@ -29,7 +29,7 @@
     box-shadow: var(--shadow-lg);
   }
   .sidebar.open { transform: translateX(0); }
-  .sidebar-overlay { display: block; }
+  .sidebar-overlay.active { display: block; }
 
   .main-content { margin-left: 0; }
 
